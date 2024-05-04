@@ -12,10 +12,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"main.go/auth"
 	"main.go/todo"
+)
+
+// ldflags
+var (
+	buildcommit = "dev"
+	buildtime   = time.Now().String()
 )
 
 func main() {
@@ -25,7 +31,7 @@ func main() {
 	}
 
 	// open
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(os.Getenv("DB_CONN")), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -35,6 +41,15 @@ func main() {
 
 	// path and method
 	r := gin.Default()
+
+	// ldflags
+	r.GET("/x", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"buildcommit": buildcommit,
+			"buildtimes":  buildtime,
+		})
+	})
+
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "test",
@@ -69,7 +84,7 @@ func main() {
 	<-ctx.Done()
 	stop()
 	fmt.Println("shutting down gracefully, press Ctrl+C again to force")
-	
+
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

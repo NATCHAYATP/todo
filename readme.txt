@@ -315,6 +315,7 @@ r.GET("/x", func(c *gin.Context) {
         "buildtime": buildtime,
     })
 })
+-> code for build is in local.env or use make build
 -> when call path you will give dev and time but you run build buildcommit is commit you will have commit number. you can read more in goodnote
 
 18. don't do but note for use in future
