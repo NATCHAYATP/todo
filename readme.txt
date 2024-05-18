@@ -108,7 +108,7 @@ import (
 )
 
 func Protect(tokenString string) error {
-	// use jwt.Parse
+	// use jwt.Parse ++ in ex i use token insteal _ because i want to know user form token for logging(22)
 	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// check it same jwt.SigningMethodHMSC 
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -384,3 +384,54 @@ make image
 โค้ดนี้อ่ะที่เราไม่ได้เรียก local.env โดยตรง docker run  -p:8080:8080 --evn-file ./local.env
 มันจะกลายไปเป็นค่าใน container ทำให้มันเรียก environment ผ่าน os อีกทีแล้วมันไม่รู้จัก "" ต้องลบ "" ใน local.env ออก
 
+22. Logging for return more information
+-> if frontend send title = sleep, backend return not Allow. you can add code in todo.go func newtask
+-> if you want to know who account have problems, you can beg frontend send hander and make transactionID for show 
+position of bug in backend
+
+if todo.Title == "sleep" {
+		transactionID := c.Request.Header.Get("TransactionID")
+		log.Println(transactionID, "not allowed")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "not allowed",
+		})
+		return
+}
+
+if you want to know who account have problem you can add some code in auth.go func AccessToken
+-> add audience
+Audience: "Pungping",
+-> รับ token form jwt.Parse in protect.go for get user form token
+if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			aud := claims["aud"]
+			c.Set("aud", aud)
+}
+if you often to log you can make middleware
+
+23. CORS for ให้ frontend ขอทรัพยากรจาก backend โดยส่งค่าต่างๆที่เอาไว้ตรวจสอบว่ามีสิทธฺิ์มาทาง header
+-> create variable config for use cors.DefaultConfig()
+-> use AllowOrigins path frontend
+-> use AllowHeaders
+-> r.Use(cors....)
+
+24. clone frontend project
+-> clone
+-> run -> GOARCH=wasm GOOS=js go build -o wasm/assets/lib.wasm wasm/main.go
+-> cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" . 
+you can move it to assets floder
+
+25. frontend not have func list data, we will make Now
+-> todo.go create func
+-> create struct for receive response
+-> find in db
+-> check error
+-> return status and response
+-> add path ใน main.go ด้วย
+
+26. func remove for delete task
+-> create func
+-> send param
+-> delete in db
+-> if have error return error
+-> return response
+-> add root path in main.go 

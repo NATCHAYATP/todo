@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/gin-contrib/cors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"main.go/auth"
@@ -42,6 +43,19 @@ func main() {
 	// path and method
 	r := gin.Default()
 
+	//cors
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"http://localhost:8081",
+	}
+
+	config.AllowHeaders = []string{
+		"Origin",
+		"Authorization",
+		"TransactionID",
+	}
+	r.Use(cors.New(config))
+
 	// ldflags
 	r.GET("/x", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -63,6 +77,8 @@ func main() {
 	handler := todo.NewHandler(db)
 	// use func newTask
 	protected.POST("/todos", handler.NewTask)
+	protected.GET("/todos", handler.List)
+	protected.DELETE("/todos/:id", handler.Remove)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
